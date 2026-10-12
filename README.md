@@ -1,89 +1,145 @@
 # Spotify Listening Dashboard
 
-Turn your Spotify listening history into an interactive Tableau dashboard: one command, no
-dragging and dropping, nothing uploaded anywhere.
+**Your Spotify Extended Streaming History → a four-page Tableau dashboard.** Run a Python script locally, open the generated `.twbx` in Tableau Public Desktop, and explore years of listening behavior. No manual chart-building or data upload is required to *generate* the dashboard.
 
-**Live example:** _add your Tableau Public link here_
+![Overview dashboard generated from synthetic Spotify listening history](assets/overview.png)
 
-The dashboard has four pages:
+> **Preview uses invented listening records.** All screenshots below were captured from the synthetic sample export, not from a real Spotify account. [Try the demo](#try-it-with-synthetic-data-no-spotify-export-needed).
 
-- **Overview:** hours, plays, artists and minutes per day, a month-by-month timeline, a weekday ×
-  hour "listening clock", and your top 10 artists (click one to filter the page).
-- **Artists & tracks:** your top artists over time, most-played tracks, new artists discovered each
-  year, and how concentrated your taste is.
-- **Skipping:** when you skip, how that changed over the years, how fast you bail, and how tracks end.
-- **Sessions & devices:** session lengths, what you listened on, and the countries you listened in.
+### What you get
 
-Every page has a **year filter**, plus a **background audio** switch if your history needs one (see
-[below](#background-audio)). The title, date range and filter options all come from your own data.
+| Page | Explore |
+| --- | --- |
+| **Overview** | Listening hours, tracks, artists, monthly trends, weekday/hour heatmap, and top artists |
+| **Artists & tracks** | Favourite artists and songs, discoveries, and listening concentration |
+| **Skipping** | Skip rate, listening duration before skipping, and how tracks ended |
+| **Sessions & devices** | Session lengths, devices, and listening countries |
 
----
+Each dashboard has a year filter; a background-audio switch appears when the tool detects likely ambient/sleep audio. Time ranges and KPIs are generated from the selected dataset.
+
+**[Jump to quick start](#quick-start)** · **[View all four dashboards](#dashboard-gallery)** · **[Privacy notes](#privacy)**
+
+## Quick start
+
+1. **Request** your Spotify **Extended streaming history** (not the basic one-year account export). [Instructions below](#1-request-your-data-from-spotify).
+2. **Install** Python and the project dependencies, once. [Mac/Windows setup](#2-set-up-once).
+3. **Run** `python make_dashboard.py /path/to/your_spotify_export.zip` inside the activated environment, then open `spotify_listening.twbx` with Tableau Public Desktop. **You do not need to unzip Spotify's export.**
+
+```text
+Spotify Extended Streaming History (.zip)
+                 ↓
+        make_dashboard.py
+                 ↓
+      spotify_listening.twbx
+                 ↓
+      Tableau Public Desktop
+```
 
 ## 1. Request your data from Spotify
 
-You need your **Extended streaming history**, not the default "Account data" (which only covers
-one year and leaves out the details the dashboard uses).
+You need **Extended streaming history**, not the default **Account data** export (which only covers approximately one year and lacks fields used here).
 
-1. Sign in at [spotify.com/account/privacy](https://www.spotify.com/account/privacy/).
-2. Under **Download your data**, tick **Extended streaming history** and select **Request data**.
-3. Confirm the request from the email Spotify sends you.
-4. Wait for a second email with a download link. Spotify says this can take **up to 30 days**,
-   though it is often quicker. The link opens a page in your account where you can download a zip.
-5. Download the zip. Its name doesn't matter, and you don't need to unzip it. Inside is a folder
-   called `Spotify Extended Streaming History` with one `Streaming_History_Audio_*.json` file per year
-   or so; the tool reads all of them and ignores the video history and the PDF.
+1. Sign in to [Spotify's privacy page](https://www.spotify.com/account/privacy/).
+2. Under **Download your data**, choose **Extended streaming history** and request it.
+3. Confirm the request by email, then wait for Spotify's download notification. Spotify says delivery can take **up to 30 days**.
+4. Save the downloaded **ZIP** somewhere easy to find, such as **Downloads**. **Do not extract it**: the script reads the ZIP directly.
 
-Spotify occasionally renames these menus. If they have moved, look for "Privacy settings" and
-"Download your data" in your account.
+Spotify may rename its settings. Look for **Privacy settings → Download your data** if the menu has changed. The archive should contain `Streaming_History_Audio_*.json` files (often inside a `Spotify Extended Streaming History` folder).
 
 ## 2. Set up (once)
 
-You need **Python 3.10 or newer** ([python.org/downloads](https://www.python.org/downloads/)) and
-**Tableau Public**, which is free ([public.tableau.com](https://public.tableau.com/app/discover)).
+Install **Python 3.10 or later** from [python.org](https://www.python.org/downloads/) and **Tableau Public Desktop** from [Tableau Public](https://www.tableau.com/products/public/download). Tableau is needed to *view and publish* the output; the Python script builds the workbook.
 
-Download this project (the green **Code** button, then **Download ZIP**), unzip it, open a
-terminal in that folder, and install the requirements:
+Click **Code → Download ZIP** at the top of this repository, extract the project ZIP, then open a terminal inside the extracted project folder—the one containing `make_dashboard.py` and `requirements.txt`.
 
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-On Windows, use `py` instead of `python3` in these commands.
-
-## 3. Build your dashboard
+**macOS / Linux** (Terminal):
 
 ```bash
-python3 make_dashboard.py path/to/my_spotify_data.zip
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
-It takes from a few seconds to about a minute, depending on how much history you have, and writes
-`spotify_listening.twbx` in the current folder:
+**Windows** (PowerShell):
 
+```powershell
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 ```
+
+If PowerShell blocks environment activation, use Command Prompt instead:
+
+```bat
+.venv\Scripts\activate.bat
+python -m pip install -r requirements.txt
+```
+
+You only install dependencies once per environment. In a new terminal session, return to the folder and reactivate `.venv` before running the script.
+
+## 3. Generate your dashboard
+
+In the activated environment, run:
+
+**macOS / Linux** — replace the filename with your actual Spotify ZIP filename:
+
+```bash
+python make_dashboard.py ~/Downloads/my_spotify_data.zip
+```
+
+**Windows** — replace the filename and, if necessary, your Downloads path:
+
+```powershell
+python make_dashboard.py "$env:USERPROFILE\Downloads\my_spotify_data.zip"
+```
+
+Paths with spaces should be wrapped in quotes. You can also pass the path to an already-extracted Spotify export folder.
+
+The script writes **`spotify_listening.twbx`** in your project folder. A successful run looks like:
+
+```text
 Reading your Spotify export...
-  132,597 plays found. Building tables...
+  25,329 plays found. Building tables...
 Building the workbook...
 Writing Tableau extracts...
-
-Done in 12s: spotify_listening.twbx
-  2016-03-24 to 2026-09-05  |  128,633 plays  |  5,322 hours  |  13,430 artists
-  Background audio (hidden by default): Sleepy Dogs
+Done in 1s: spotify_listening.twbx
 ```
 
-No Spotify data handy? Make an invented two-year history to try it with:
+The numbers, dates, and duration depend on your data; those above are from the synthetic demo.
+
+## 4. Open in Tableau Public Desktop
+
+1. Start **Tableau Public Desktop** and choose **File → Open**.
+2. Select **`spotify_listening.twbx`** from your project folder.
+3. Explore the **Overview**, **Artists & tracks**, **Skipping**, and **Sessions & devices** tabs; try the year filter and (if visible) the background-audio control.
+4. **Optional:** Choose **File → Save to Tableau Public As…** to publish to your Tableau Public profile.
+
+> **Publishing is not private.** Tableau Public makes your visualization and its embedded listening records publicly accessible. Use the synthetic demo for a public portfolio showcase unless you deliberately want to disclose your real history. Never commit your personal Spotify archive or output `.twbx` to a public GitHub repository.
+
+## Try it with synthetic data (no Spotify export needed)
+
+Use the included sample generator to make a wholly invented Spotify-style archive and build the same type of dashboard shown here:
 
 ```bash
-python3 tests/make_sample_export.py sample_spotify_data.zip
-python3 make_dashboard.py sample_spotify_data.zip
+python tests/make_sample_export.py sample_spotify_data.zip
+python make_dashboard.py sample_spotify_data.zip
 ```
 
-## 4. Open and publish
+Then open `spotify_listening.twbx` in Tableau Public Desktop. The sample export is **not a real person's listening history**.
 
-1. Open `spotify_listening.twbx` in Tableau Public. Your dashboard is ready.
-2. To share it, choose **File → Save to Tableau Public As…** and sign in. Tableau gives you a link
-   you can put on a portfolio or send to friends.
+## Dashboard gallery
 
-The workbook has been tested with Tableau Desktop Public Edition 2026.2.3.
+### Artists & tracks
+
+![Artists and tracks dashboard using synthetic listening data](assets/artists-tracks.png)
+
+### Skipping
+
+![Skipping dashboard using synthetic listening data](assets/skipping.png)
+
+### Sessions & devices
+
+![Sessions and devices dashboard using synthetic listening data](assets/sessions-devices.png)
 
 ---
 
@@ -143,7 +199,7 @@ Some definitions used in the charts:
 
 ## Privacy
 
-- Everything runs on your computer. The tool makes no network requests.
+- The dashboard generation script processes your listening history locally. Installing dependencies requires downloading Python packages; publishing to Tableau Public sends your workbook to Tableau.
 - Spotify's export includes the IP addresses you listened from; the tool never reads them, and they
   are not in the workbook.
 - Once you publish to Tableau Public, the dashboard **and the data inside it** (every play, with
@@ -154,17 +210,22 @@ Some definitions used in the charts:
 
 - **"This looks like Spotify's basic Account data export"**: you requested the default download.
   Request **Extended streaming history** instead (step 1).
-- **`No module named ...`**: run the install command from step 2 again, in the same terminal.
+- **`No module named ...`**: activate the `.venv` environment and rerun the dependency install command from step 2.
 - **Tableau shows an error when opening the file**: please
   [open an issue](../../issues) with the error text (the **Copy Error Message** button) and your
   Tableau Public version (**Tableau Public → About Tableau Public**).
 
-## Development
+## Development and verification
+
+For an isolated test environment, follow the installation commands in [Set up](#2-set-up-once), then install `pytest` and run the test suite:
 
 ```bash
-python3 -m pip install -r requirements.txt pytest
-python3 -m pytest
+python -m pip install pytest
+python -m pytest -v
 ```
+
+**Verified run (macOS, October 2026):** Python 3.14.4; all 9 tests passed. A synthetic 25,329-record export generated a Tableau `.twbx` successfully and opened as four dashboards in Tableau Public Desktop. This validates the sample workflow, not every possible Spotify export or Tableau installation.
+
 
 The tests build complete workbooks from invented histories, so no real listening data is needed.
 
