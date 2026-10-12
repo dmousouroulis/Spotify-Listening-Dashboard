@@ -141,6 +141,21 @@ Then open `spotify_listening.twbx` in Tableau Public Desktop. The sample export 
 
 ![Sessions and devices dashboard using synthetic listening data](assets/sessions-devices.png)
 
+## Compatibility & testing
+
+The following environment was **successfully tested on October 12, 2026** using the included synthetic Spotify history:
+
+| Component | Verified environment |
+| --- | --- |
+| Tableau | **Tableau Desktop — Public Edition 2026.2.3** (build `20262.26.0912.1023`) |
+| Operating system | **macOS, Apple Silicon** |
+| Python | **3.14.4** |
+| Automated tests | **9 passed** with `pytest` |
+| End-to-end demo | **25,329 synthetic plays** processed; `spotify_listening.twbx` generated successfully |
+| Visual verification | All four dashboards opened in Tableau Public Desktop |
+
+This establishes compatibility with the version above; other Tableau and Python versions may work but were not independently verified. The synthetic-data results do not guarantee support for every possible Spotify export.
+
 ---
 
 ## Background audio
@@ -224,8 +239,7 @@ python -m pip install pytest
 python -m pytest -v
 ```
 
-**Verified run (macOS, October 2026):** Python 3.14.4; all 9 tests passed. A synthetic 25,329-record export generated a Tableau `.twbx` successfully and opened as four dashboards in Tableau Public Desktop. This validates the sample workflow, not every possible Spotify export or Tableau installation.
-
+For the tested Tableau version, Python version, and end-to-end results, see [Compatibility & testing](#compatibility--testing).
 
 The tests build complete workbooks from invented histories, so no real listening data is needed.
 
