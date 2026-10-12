@@ -2,6 +2,14 @@
 
 **Your Spotify Extended Streaming History → a four-page Tableau dashboard.** Run a Python script locally, open the generated `.twbx` in Tableau Public Desktop, and explore years of listening behavior. No manual chart-building or data upload is required to *generate* the dashboard.
 
+### Live dashboard
+
+**[Explore the interactive dashboard on Tableau Public](https://public.tableau.com/app/profile/dmousouroulis/viz/SpotifyListeningHistory_17918349868750/Overview)**
+
+See the project in action using ten years of real Spotify listening history, with four interactive dashboards covering listening trends, artists, skipping behavior, and listening sessions.
+
+*The live dashboard uses personal streaming history; all GitHub screenshots and the sample dataset use synthetic records.*
+
 ![Overview dashboard generated from synthetic Spotify listening history](assets/overview.png)
 
 > **Preview uses invented listening records.** All screenshots below were captured from the synthetic sample export, not from a real Spotify account. [Try the demo](#try-it-with-synthetic-data-no-spotify-export-needed).
@@ -15,7 +23,7 @@
 | **Skipping** | Skip rate, listening duration before skipping, and how tracks ended |
 | **Sessions & devices** | Session lengths, devices, and listening countries |
 
-Each dashboard has a year filter; a background-audio switch appears when the tool detects likely ambient/sleep audio. Time ranges and KPIs are generated from the selected dataset.
+Each dashboard includes interactive navigation between all four pages, a year filter, and an optional background-audio control when ambient or sleep audio is detected. Time ranges, KPIs, and visualizations are generated automatically from the user's listening history.
 
 **[Jump to quick start](#quick-start)** · **[View all four dashboards](#dashboard-gallery)** · **[Privacy notes](#privacy)**
 
@@ -153,6 +161,7 @@ The following environment was **successfully tested on October 12, 2026** using 
 | Automated tests | **9 passed** with `pytest` |
 | End-to-end demo | **25,329 synthetic plays** processed; `spotify_listening.twbx` generated successfully |
 | Visual verification | All four dashboards opened in Tableau Public Desktop |
+| Navigation | Native Tableau navigation buttons tested successfully across four dashboards |
 
 This establishes compatibility with the version above; other Tableau and Python versions may work but were not independently verified. The synthetic-data results do not guarantee support for every possible Spotify export.
 
