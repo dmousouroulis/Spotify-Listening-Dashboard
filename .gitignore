@@ -1,0 +1,10 @@
+# Your listening history and anything built from it stays out of the repo
+*.zip
+*.twbx
+*.hyper
+my_spotify_data*/
+Spotify Extended Streaming History/
+csv/
+__pycache__/
+.pytest_cache/
+.venv/
