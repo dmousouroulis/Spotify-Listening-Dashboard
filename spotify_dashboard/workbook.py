@@ -543,12 +543,12 @@ def ra(text, size=10, color=TXT, font=FONT):   # right-aligned run
     return f'<run fontalignment="2" fontcolor="{color}" fontname="{font}" fontsize="{size}">{escape(text)}</run>'
 
 PAGES = ['Overview', 'Artists & tracks', 'Skipping', 'Sessions & devices']
+WINDOW_IDS = {}  # Tableau navigation targets, regenerated per workbook
 CX, CW, GAP = 256, 1120, 16          # content column
 
 class Dash:
     def __init__(self, name, subtitle):
         self.name, self.subtitle, self.zones, self.next_id, self.sheets = name, subtitle, [], 3, []
-        self.window_id = DASHBOARD_IDS[name]  # stable destination for dashboard navigation buttons
     def add(self, inner_xml, attrs, box):
         z = Z(*box)
         a = ' '.join(f'{k}={q(str(v))}' for k, v in attrs.items())
@@ -578,24 +578,23 @@ class Dash:
         self.add(f'<formatted-text>{runs_xml}</formatted-text>' + zone_style(bg, pad, None, radius), {'type-v2': 'text'}, box)
     def blank(self, box, bg, radius=None):
         self.add(zone_style(bg, None, None, radius), {'type-v2': 'empty'}, box)
+    def nav_button(self, target, box):
+        # Native dashboard-object wrapper and button schema copied from a genuine
+        # Tableau Public Desktop 2026.2.3 workbook.
+        dest = WINDOW_IDS[target]
+        caption_color = GREEN if target == self.name else TXT3
+        visual = (f'<button action={q('tabdoc:goto-sheet window-id="' + dest + '"')} button-type="text">'
+                  f'<button-visual-state><caption>{escape(target)}</caption>'
+                  f'<button-caption-font-style fontcolor="{caption_color}" '
+                  f'fontname="{FONT}" fontsize="9" />'
+                  f'<format attr="background-color" value="{BG}" />'
+                  f'</button-visual-state></button>')
+        self.add(visual + '<zone-style><format attr="border-style" value="none" />'
+                 '<format attr="margin" value="0" /></zone-style>',
+                 {'type-v2': 'dashboard-object'}, box)
+
     def param(self, p, box):
         self.add(zone_style(RAIL, 2), {'param': p, 'type-v2': 'paramctrl'}, box)
-    def nav_button(self, page, box):
-        """Native Tableau dashboard-navigation control (not decorative text)."""
-        target = DASHBOARD_IDS[page]
-        label_color = GREEN if page == self.name else TXT3
-        weight = FONT_SB if page == self.name else FONT
-        # Tableau embeds a quoted target window id inside the action attribute.
-        action = f'tabdoc:goto-sheet window-id="{target}"'
-        button = (f'<button action={q(action)} button-type="text">'
-                  '<button-visual-state>'
-                  f'<caption>{escape(page)}</caption>'
-                  f'<button-caption-font-style fontcolor={q(label_color)} fontname={q(weight)} fontsize="9" />'
-                  f'<format attr="background-color" value="{BG}" />'
-                  '<format attr="border-style" value="none" />'
-                  '</button-visual-state></button>')
-        self.add(button + zone_style(BG, 0), {'type-v2': 'dashboard-object'}, box)
-
     def chrome(self):
         self.blank((0, 0, 1400, 900), BG)
         # navigation rail
@@ -636,14 +635,10 @@ class Dash:
                   (24, 820, 192, 56))
         # page header + page indicator
         self.text(r(self.name, 24, TXT, FONT_SB) + NL + r(self.subtitle, 10, TXT2), (CX, 22, 760, 70))
-        # Individual native buttons keep the old understated, right-aligned header.
-        # Buttons may be activated directly in published views; in Desktop use Option-click.
-        widths = [73, 126, 78, 145]
-        gap = 8
-        x = CX + CW - sum(widths) - gap * (len(widths) - 1)
-        for page, width in zip(PAGES, widths):
-            self.nav_button(page, (x, 34, width, 28))
-            x += width + gap
+        # Four independent native navigation zones. The buttons are backed by
+        # actual dashboard window UUIDs; Tableau Public's tabs remain a fallback.
+        for target, x, width in zip(PAGES, (846, 952, 1113, 1219), (100, 155, 100, 165)):
+            self.nav_button(target, (x, 36, width, 25))
     def xml(self):
         deps = '<datasources><datasource name="Parameters" /></datasources>' \
                '<datasource-dependencies datasource="Parameters">' + ''.join(param_col_xml(p) for p in PARAMS) + '</datasource-dependencies>'
@@ -659,7 +654,7 @@ class Dash:
     def window(self):
         vps = ''.join(f'<viewpoint name={q(s)}><zoom type="entire-view" /></viewpoint>' for s in self.sheets)
         return (f'<window class="dashboard" maximized="true" name={q(self.name)}><viewpoints>{vps}</viewpoints>'
-                f'<active id="-1" /><simple-id uuid="{self.window_id}" /></window>')
+                f'<active id="-1" /><simple-id uuid="{WINDOW_IDS[self.name]}" /></window>')
 
 def cols(n, widths=None):
     """x positions and widths for n cards across the content column."""
@@ -672,8 +667,7 @@ def cols(n, widths=None):
     return xs
 
 def define_dashes():
-    global DASHES, DASHBOARD_IDS
-    DASHBOARD_IDS = {page: uid() for page in PAGES}
+    global DASHES
     d1 = Dash('Overview', 'How much, when and who: your listening at a glance')
     d1.chrome()
     KPIS = [('KPI Hours', 'HOURS LISTENED', 'Time actually played, not just started'),
@@ -734,7 +728,7 @@ def workbook():
     return ('<?xml version="1.0" encoding="utf-8" ?>\n'
             '<workbook original-version="18.1" source-build="2023.1.0 (20231.23.0310.1045)" source-platform="mac" version="18.1" '
             'xmlns:user="http://www.tableausoftware.com/xml/user">'
-            '<document-format-change-manifest><SheetIdentifierTracking /><WindowsPersistSimpleIdentifiers /></document-format-change-manifest>'
+            '<document-format-change-manifest><BasicButtonObject /><BasicButtonObjectTextSupport /><SheetIdentifierTracking /><WindowsPersistSimpleIdentifiers /></document-format-change-manifest>'
             '<preferences><preference name="ui.encoding.shelf.height" value="24" /><preference name="ui.shelf.height" value="26" /></preferences>'
             '<datasources>' + params_ds_xml() + ''.join(datasource_xml(k) for k in DS) + '</datasources>'
             '<actions><action caption="Filter page by artist" name="[Action1_ArtistFilter]">'
@@ -775,5 +769,7 @@ def build(meta, note=None, link=None, link_label='see the project on GitHub'):
     CONTEXT.update(bg_runs=_bg_runs(meta, note), has_bg=bool(meta.get('background')), note=note,
                    link=link, link_label=link_label)
     define_sheets(meta)
+    WINDOW_IDS.clear()
+    WINDOW_IDS.update({p: uid() for p in PAGES})
     define_dashes()
     return workbook()
