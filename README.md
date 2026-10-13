@@ -227,11 +227,8 @@ Some definitions used in the charts:
 ## Privacy
 
 - The dashboard generation script processes your listening history locally. Installing dependencies requires downloading Python packages; publishing to Tableau Public sends your workbook to Tableau.
-- Spotify's export includes the IP addresses you listened from; the tool never reads them, and they
-  are not in the workbook.
-- Once you publish to Tableau Public, the dashboard **and the data inside it** (every play, with
-  dates, tracks and countries) are public. Check your Tableau Public settings if you don't want
-  people to download the workbook.
+- **IP address protection:** Spotify's Extended Streaming History export contains IP addresses associated with individual listening events. The dashboard generator automatically excludes these during data processing. IP addresses are never included in the generated Tableau workbook or its embedded data extracts.
+- Once you publish to Tableau Public, the dashboard **and the data inside it** (every play, with dates, tracks and countries) are public. Check your Tableau Public settings if you don't want people to download the workbook.
 
 ## Troubleshooting
 
