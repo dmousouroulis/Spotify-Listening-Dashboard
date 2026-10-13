@@ -23,7 +23,9 @@ See the project in action using ten years of real Spotify listening history, wit
 | **Skipping** | Skip rate, listening duration before skipping, and how tracks ended |
 | **Sessions & devices** | Session lengths, devices, and listening countries |
 
-Each dashboard includes interactive navigation between all four pages, a year filter, and an optional background-audio control when ambient or sleep audio is detected. Time ranges, KPIs, and visualizations are generated automatically from the user's listening history.
+Each dashboard includes interactive navigation between all four pages, a year filter, and an optional background-audio control when ambient or sleep audio is detected. Time ranges, KPIs, and visualizations are generated automatically from the selected dataset.
+
+**On phones**, Tableau Public automatically shows a single-column version of each page. KPI cards appear two per row, and the Listening clock uses readable three-hour blocks.
 
 **[Jump to quick start](#quick-start)** · **[View all four dashboards](#dashboard-gallery)** · **[Privacy notes](#privacy)**
 
@@ -158,10 +160,11 @@ The following environment was **successfully tested on October 12, 2026** using 
 | Tableau | **Tableau Desktop — Public Edition 2026.2.3** (build `20262.26.0912.1023`) |
 | Operating system | **macOS, Apple Silicon** |
 | Python | **3.14.4** |
-| Automated tests | **9 passed** with `pytest` |
+| Automated tests | **12 passed** with `pytest` (original pipeline plus mobile layout tests) |
 | End-to-end demo | **25,329 synthetic plays** processed; `spotify_listening.twbx` generated successfully |
 | Visual verification | All four dashboards opened in Tableau Public Desktop |
-| Navigation | Native Tableau navigation buttons tested successfully across four dashboards |
+| Navigation | Native Tableau navigation buttons tested across all four dashboards |
+| Mobile layout | Phone layouts verified in Tableau Public on iPhone / Safari (October 2026) |
 
 This establishes compatibility with the version above; other Tableau and Python versions may work but were not independently verified. The synthetic-data results do not guarantee support for every possible Spotify export.
 
@@ -231,6 +234,15 @@ Some definitions used in the charts:
   people to download the workbook.
 
 ## Troubleshooting
+
+**Upgrading an older generated workbook:** add the phone layouts without reprocessing the Spotify export:
+
+```bash
+python -m spotify_dashboard.mobile spotify_listening.twbx
+```
+
+This updates the specified `.twbx` in place. Keep a backup if you want to retain the original workbook.
+
 
 - **"This looks like Spotify's basic Account data export"**: you requested the default download.
   Request **Extended streaming history** instead (step 1).

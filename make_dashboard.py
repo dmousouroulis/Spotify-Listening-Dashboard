@@ -17,6 +17,7 @@ from spotify_dashboard.load import ExportError, load_export
 from spotify_dashboard.transform import build_tables
 from spotify_dashboard.validate import check_workbook
 from spotify_dashboard.workbook import build
+from spotify_dashboard.mobile import add_phone_layouts
 from spotify_dashboard.extracts import write_extracts
 
 
@@ -52,6 +53,7 @@ def main(argv=None):
 
     print('Building the workbook...')
     xml = build(meta, note=args.note, link=args.link)
+    xml = add_phone_layouts(xml)
     problems = check_workbook(xml)
     if problems:
         print('Internal check failed (please open an issue with this output):', file=sys.stderr)
